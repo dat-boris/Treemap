@@ -91,22 +91,18 @@ def test_coverage():
         print("%s: file does not exist (try --help)" % coverage_file)
         sys.exit(2)
 
-    coverage.the_coverage.cache = coverage_file
-    try:
-        coverage.the_coverage.restore()
-    except:
-        print("Error loading coverage, is %s a valid coverage file?" % coverage_file)
-    
-    wanted = coverage.the_coverage.cexecuted.keys()
+    # API at https://coverage.readthedocs.io/en/coverage-3.5.3/api.html
+    coverage_obj = coverage.coverage(data_file=coverage_file)
+    coverage_obj.load()
+
+    wanted_files = coverage_obj.data.measured_files()
     
     if include:    
-        wanted = [x for x in wanted if x.count(include)]
+        wanted_files = [x for x in wanted_files if x.count(include)]
     if exclude:
-        wanted = [x for x in wanted if not x.count(exclude)]
-    wanted = [coverage.the_coverage.canonical_filename(x) for x in wanted]
+        wanted_files = [x for x in wanted_files if not x.count(exclude)]
     
-    
-    code = CoveredCode(wanted)
+    code = CoveredCode(wanted_files)
     root = code.root_module()
     
     Treemap( root,  code.size, code.color, iter_method=code.child_modules )
