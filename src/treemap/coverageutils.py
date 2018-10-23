@@ -74,8 +74,10 @@ class CoveredCode:
         return size
     
     def color(self, module):
-        (h,s,v) = (self.cover_as_percent(module)*0.3, 0.8, 1)
-        return colorsys.hsv_to_rgb(h,s,v)
+        print("{}: {}%".format(module, 100. * self.cover_as_percent(module)))
+        # anything below 70% should be of guard
+        hue = max(0, self.cover_as_percent(module) - 0.7)
+        return colorsys.hsv_to_rgb(hue, 0.8, 1)
     
     def cover_as_percent(self, module):
         #print "m", module,  module.coverage, "/", module.size

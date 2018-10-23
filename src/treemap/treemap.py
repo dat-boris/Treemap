@@ -9,6 +9,7 @@ __revision__ = 1.03
 
 import pylab
 from matplotlib.patches import Rectangle
+import matplotlib.pyplot
 
 def smaller(a, b):
     """return whichever of a and b is inside the other"""
@@ -94,6 +95,13 @@ class Treemap:
                    edgecolor='k', 
                    facecolor= self.color_method(node))
         self.ax.add_patch(r)
+        self.ax.annotate(
+            node,
+            ((lower[0]+upper[0])/2, (lower[1]+upper[1])/2),
+            weight='bold',
+            fontsize=6, ha='center', va='center'
+        )
+        matplotlib.pyplot
     
     def get_current_area(self, event):
         """get the area the mouse is over"""
