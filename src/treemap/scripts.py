@@ -72,17 +72,17 @@ def test_coverage():
         sys.exit(2)
         
     coverage_file = ".coverage"
-    include = None
-    exclude = "Test"
+    includes = []
+    excludes = []
     
     for o, a in opts:
         if o in ("-h", "--help"):
             print(test_coverage.__doc__)
             sys.exit()
         if o in ("-i", "--include"):
-            include = a
+            includes = a.split(',')
         if o in ("-e", "--exclude"):
-            exclude = a    
+            excludes = a.split(',')
             
     if len(args) > 0:
         coverage_file = args[0]
@@ -97,10 +97,16 @@ def test_coverage():
 
     wanted_files = coverage_obj.data.measured_files()
     
-    if include:    
-        wanted_files = [x for x in wanted_files if x.count(include)]
-    if exclude:
-        wanted_files = [x for x in wanted_files if not x.count(exclude)]
+    if includes:
+        wanted_files = filter(
+            lambda file_name: [file_name for substr in includes if substr in file_name],
+            wanted_files
+        )
+    if excludes:
+        wanted_files = filter(
+            lambda file_name: [file_name for substr in excludes if substr not in file_name],
+            wanted_files
+        )
     
     code = CoveredCode(wanted_files)
     root = code.root_module()
