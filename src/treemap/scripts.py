@@ -71,7 +71,7 @@ def test_coverage():
         print(test_coverage.__doc__)
         sys.exit(2)
         
-    coverage_file = ".coverage"
+    coverage_file = os.environ.get('COVERAGE_FILE') or ".coverage"
     includes = []
     excludes = []
     
@@ -108,7 +108,7 @@ def test_coverage():
             wanted_files
         )
     
-    code = CoveredCode(wanted_files)
+    code = CoveredCode(wanted_files, coverage=coverage_obj)
     root = code.root_module()
     
     Treemap( root,  code.size, code.color, iter_method=code.child_modules )

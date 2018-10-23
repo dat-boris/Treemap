@@ -58,13 +58,15 @@ class Treemap:
     def addnode(self, node, lower=[0.0, 0.0], upper=[1.0, 1.0], axis=0):
         """add a node of the tree to the treemap"""
         axis = axis % 2
-        self.draw_rectangle(lower, upper, node)
+        children = self.iter_method(node)
+        leaf_node = len(children)==0
+        self.draw_rectangle(lower, upper, node, draw_text=(len(children)==0))
         self.areas[(tuple(lower), tuple(upper))] = node
         
         (lm, um) = self.add_margins(lower, upper)
         width = um[axis] - lm[axis]
         try:
-            for child in self.iter_method(node):
+            for child in children:
                 if self.size_method(child) == 0:
                     continue
                 um[axis] = lm[axis] + (width * float(self.size_method(child)) 
@@ -89,18 +91,19 @@ class Treemap:
             upper_with_margin[dim] = upper[dim] - relative_margin
         return (lower_with_margin, upper_with_margin)
         
-    def draw_rectangle(self, lower, upper, node):
+    def draw_rectangle(self, lower, upper, node, draw_text=False):
         """draw a rectangle on the figure"""
         r = Rectangle(lower, upper[0]-lower[0], upper[1] - lower[1], 
                    edgecolor='k', 
                    facecolor= self.color_method(node))
         self.ax.add_patch(r)
-        self.ax.annotate(
-            node,
-            ((lower[0]+upper[0])/2, (lower[1]+upper[1])/2),
-            weight='bold',
-            fontsize=6, ha='center', va='center'
-        )
+        if draw_text:
+            self.ax.annotate(
+                node.name.split('.')[-1],
+                ((lower[0]+upper[0])/2, (lower[1]+upper[1])/2),
+                weight='bold',
+                fontsize=6, ha='center', va='center'
+            )
         matplotlib.pyplot
     
     def get_current_area(self, event):

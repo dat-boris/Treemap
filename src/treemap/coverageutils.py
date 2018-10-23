@@ -1,6 +1,5 @@
 import marshal
 import sys
-import coverage
 import StringIO
 import colorsys
 import math
@@ -10,7 +9,7 @@ import os
 SEP = "."
 
 class CoveredCode:
-    def __init__(self, module_list):
+    def __init__(self, module_list, coverage):
         self.modules = {}
         self.coverage_cache = {}
         
@@ -26,15 +25,15 @@ class CoveredCode:
             tokens = line.split()
             if len(tokens) > 3 and tokens[0] != 'Name':
                 try:
-                    cm = CoveredModule(tokens[0], int(tokens[1]), int(tokens[2]))
+                    module_name, statement, missing, coverage_perc = tokens[:4]
+                    # print("{}: {} / {} ({})".format(module_name, statement, missing, coverage_perc))
+                    cm = CoveredModule(module_name, int(statement), int(statement) - int(missing))
                     self.modules[cm.name] = cm
                     if cm.name.endswith('__init__'):
                         name = cm.name[:-9]
                         self.modules[name] = CoveredModule(name, 0, None)
-                        
-                except:
-                    pass
-                    #print "Error parsing", line
+                except ValueError:
+                    print("[WARN] Skipping {}: {}".format(tokens[0], line))
         
         self.root_module().size = 0
         
