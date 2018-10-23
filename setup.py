@@ -15,7 +15,7 @@ setup(
       implementation uses pylab to display the resulting map, and the map can
       be zoomed by clicking on a node. """,
       url = "http://www.machine-envy.com/blog/?p=47",
-      install_requires = ['pylab']
+      install_requires = ['pylab'],
       entry_points = {
         'gui_scripts': [
             'treemap_demo = treemap.scripts:example',
