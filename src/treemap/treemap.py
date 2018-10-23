@@ -9,7 +9,6 @@ __revision__ = 1.03
 
 import pylab
 from matplotlib.patches import Rectangle
-import matplotlib.pyplot
 
 def smaller(a, b):
     """return whichever of a and b is inside the other"""
@@ -91,20 +90,34 @@ class Treemap:
             upper_with_margin[dim] = upper[dim] - relative_margin
         return (lower_with_margin, upper_with_margin)
         
-    def draw_rectangle(self, lower, upper, node, draw_text=False):
-        """draw a rectangle on the figure"""
+    def draw_rectangle(self, lower, upper, node, draw_text=False, max_len=20, min_size=0.0001):
+        """draw a rectangle on the figure
+
+        :param: max_len Maximum length of text before we truncate
+        :param: min_size Minimum size of the rectange before we add text annotation (in % of figure)
+        """
         r = Rectangle(lower, upper[0]-lower[0], upper[1] - lower[1], 
                    edgecolor='k', 
                    facecolor= self.color_method(node))
         self.ax.add_patch(r)
-        if draw_text:
+        size = (upper[0] - lower[0]) * (upper[1] - lower[1])
+        if draw_text and size > min_size:
+            node_text = node.name
+            if max_len:
+                if len(node_text) > max_len:
+                    modules = node.name.split('.')
+                    if len(modules) > 2:
+                        node_text = "{}...{}".format(modules[0], modules[-1])
+                    elif len(modules) == 2:
+                        node_text = "{}.{}".format(modules[0], modules[-1])
+                    else:
+                        node_text = "..." + node_text[-max_len:]
             self.ax.annotate(
-                node.name.split('.')[-1],
+                node_text,
                 ((lower[0]+upper[0])/2, (lower[1]+upper[1])/2),
                 weight='bold',
-                fontsize=6, ha='center', va='center'
+                fontsize=4, ha='center', va='center'
             )
-        matplotlib.pyplot
     
     def get_current_area(self, event):
         """get the area the mouse is over"""

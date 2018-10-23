@@ -6,6 +6,7 @@ import getopt
 import sys
 import os
 import coverage
+import math
 
 from .treemap import Treemap
 from .coverageutils import CoveredCode, CoveredModule
@@ -66,7 +67,7 @@ def test_coverage():
         treemap_coverage --exclude treemap /path/to/.coverage
     """
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hi:ve:v", ["help", "include=", "exclude="])
+        opts, args = getopt.getopt(sys.argv[1:], "hi:ve:v", ["help", "include=", "exclude=", "img="])
     except getopt.GetoptError:
         print(test_coverage.__doc__)
         sys.exit(2)
@@ -74,6 +75,7 @@ def test_coverage():
     coverage_file = os.environ.get('COVERAGE_FILE') or ".coverage"
     includes = []
     excludes = []
+    output_img = None
     
     for o, a in opts:
         if o in ("-h", "--help"):
@@ -83,6 +85,8 @@ def test_coverage():
             includes = a.split(',')
         if o in ("-e", "--exclude"):
             excludes = a.split(',')
+        if o in ("--img"):
+            output_img = a
             
     if len(args) > 0:
         coverage_file = args[0]
@@ -112,5 +116,15 @@ def test_coverage():
     root = code.root_module()
     
     Treemap( root,  code.size, code.color, iter_method=code.child_modules )
-    pylab.show()
+    if not output_img:
+        pylab.show()
+    else:
+        root_node_size = len(code.child_modules(root))
+        dpi = math.log(root_node_size) * 300
+        print("Using image DPI: {} (root size={})".format(dpi, root_node_size))
+        pylab.savefig(
+            output_img,
+            dpi=dpi
+        )
+        print("Written image file to: {}".format(output_img))
     
