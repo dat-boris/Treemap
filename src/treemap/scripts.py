@@ -7,6 +7,7 @@ import sys
 import os
 import coverage
 import math
+import fnmatch
 
 from .treemap import Treemap
 from .coverageutils import CoveredCode, CoveredModule
@@ -103,14 +104,18 @@ def test_coverage():
     
     if includes:
         wanted_files = filter(
-            lambda file_name: [file_name for substr in includes if substr in file_name],
+            # we have to add '*/' as this is an absolute path
+            lambda file_name: [file_name for substr in includes if fnmatch.fnmatch(file_name, '*/'+substr)],
             wanted_files
         )
+    assert wanted_files, "No files included!"
     if excludes:
         wanted_files = filter(
-            lambda file_name: [file_name for substr in excludes if substr not in file_name],
+            # we have to add '*/' as this is an absolute path
+            lambda file_name: not [file_name for substr in excludes if fnmatch.fnmatch(file_name, '*/'+substr)],
             wanted_files
         )
+    assert wanted_files, "All files excluded!"
     
     code = CoveredCode(wanted_files, coverage=coverage_obj)
     root = code.root_module()
